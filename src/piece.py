@@ -18,7 +18,7 @@ class Piece:
         )
 
     def add_moves(self, move):
-        self.moves.appennd(move)
+        self.moves.append(move)
 
 class Pawn(Piece):
     def __init__(self, color) -> None:
