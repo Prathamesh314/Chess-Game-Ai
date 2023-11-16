@@ -4,6 +4,7 @@ import sys
 from const import *
 from game import Game
 
+
 class Main:
     def __init__(self) -> None:
         pygame.init()

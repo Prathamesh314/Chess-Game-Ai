@@ -1,6 +1,3 @@
-from typing import List
-
-
 class Square:
     def __init__(self, row, col, piece=None) -> None:
         self.row = row
