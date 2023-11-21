@@ -19,6 +19,7 @@ class Square:
     def has_piece(self):
         return self.piece is not None
 
+
     @staticmethod
     def is_valid(r: int, c: int) -> bool:
         if 0 <= r <= 7 and 0 <= c <= 7:

@@ -1,3 +1,5 @@
+from typing import List
+
 from const import *
 from square import Square
 from piece import *
@@ -15,6 +17,63 @@ class Board:
         '''
         This method is going to calculate all possible (valid) moves of a piece on a specific row and column
         '''
+
+        def bishop_moves():
+            # Move diagonally up left ( -1, -1 )
+            temp_row, temp_col = row, col
+            while temp_row >= 0 and temp_col >= 0:
+                temp_row -= 1
+                temp_col -= 1
+                if Square.is_valid(temp_row, temp_col):
+                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
+                        initial = Square(row, col)
+                        final = Square(temp_row, temp_col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[temp_row][temp_col].has_rival(piece.color):
+                            break
+
+            # move diagonally up right ( -1, 1 )
+            temp_row, temp_col = row, col
+            while temp_row >= 0 and temp_col < COLS:
+                temp_row -= 1
+                temp_col += 1
+                if Square.is_valid(temp_row, temp_col):
+                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
+                        initial = Square(row, col)
+                        final = Square(temp_row, temp_col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[temp_row][temp_col].has_rival(piece.color):
+                            break
+
+            # move diagonally down left (1, -1 )
+            temp_row, temp_col = row, col
+            while temp_row < ROWS and temp_col >= 0:
+                temp_row += 1
+                temp_col -= 1
+                if Square.is_valid(temp_row, temp_col):
+                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
+                        initial = Square(row, col)
+                        final = Square(temp_row, temp_col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[temp_row][temp_col].has_rival(piece.color):
+                            break
+
+            # move diagonally down right ( 1, 1 )
+            temp_row, temp_col = row, col
+            while temp_row < ROWS and temp_col < COLS:
+                temp_row += 1
+                temp_col += 1
+                if Square.is_valid(temp_row, temp_col):
+                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
+                        initial = Square(row, col)
+                        final = Square(temp_row, temp_col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[temp_row][temp_col].has_rival(piece.color):
+                            break
 
         def pawn_move():
             steps = 1 if piece.moved else 2
@@ -75,7 +134,7 @@ class Board:
             pass
 
         elif isinstance(piece, Bishop):
-            pass
+            bishop_moves()
 
         elif isinstance(piece, Knight):
             knight_moves()
