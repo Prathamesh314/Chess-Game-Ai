@@ -18,6 +18,51 @@ class Board:
         This method is going to calculate all possible (valid) moves of a piece on a specific row and column
         '''
 
+        def rook_moves():
+            # move up
+            for i in range(row-1,-1,-1):
+                if Square.is_valid(i, col):
+                    if self.squares[i][col].is_empty_or_rival(piece.color):
+                        initial = Square(row, col)
+                        final = Square(i, col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[i][col].has_rival(piece.color):
+                            break
+
+            # move down
+            for i in range(row+1, ROWS):
+                if Square.is_valid(i, col):
+                    if self.squares[i][col].is_empty_or_rival(piece.color):
+                        initial = Square(row, col)
+                        final = Square(i, col)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[i][col].has_rival(piece.color):
+                            break
+
+            # move left
+            for j in range(col):
+                if Square.is_valid(row, j):
+                    if self.squares[row][j].is_empty_or_rival(piece.color):
+                        initial = Square(row, col)
+                        final = Square(row, j)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[row][j].has_rival(piece.color):
+                            break
+
+            # move right
+            for j in range(col+1, COLS):
+                if Square.is_valid(row, j):
+                    if self.squares[row][j].is_empty_or_rival(piece.color):
+                        initial = Square(row, col)
+                        final = Square(row, j)
+                        move = Move(initial, final)
+                        piece.add_moves(move)
+                        if self.squares[row][j].has_rival(piece.color):
+                            break
+
         def bishop_moves():
             # Move diagonally up left ( -1, -1 )
             temp_row, temp_col = row, col
@@ -131,7 +176,7 @@ class Board:
             pawn_move()
 
         elif isinstance(piece, Rook):
-            pass
+            rook_moves()
 
         elif isinstance(piece, Bishop):
             bishop_moves()
