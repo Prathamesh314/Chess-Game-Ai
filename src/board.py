@@ -18,107 +18,42 @@ class Board:
         This method is going to calculate all possible (valid) moves of a piece on a specific row and column
         '''
 
-        def rook_moves():
-            # move up
-            for i in range(row-1,-1,-1):
-                if Square.is_valid(i, col):
-                    if self.squares[i][col].is_empty_or_rival(piece.color):
+        def king_moves():
+            moves_list = [
+                (1, 0),
+                (-1, 0),
+                (0, -1),
+                (0, 1),
+                (1, 1),
+                (1, -1),
+                (-1, -1),
+                (-1, 1),
+            ]
+            for moves in moves_list:
+                row_incr, col_incr = moves
+                new_row, new_col = row + row_incr, col + col_incr
+                if Square.is_valid(new_row, new_col):
+                    if self.squares[new_row][new_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[new_row][new_col].piece, King):
                         initial = Square(row, col)
-                        final = Square(i, col)
+                        final = Square(new_row, new_col)
                         move = Move(initial, final)
                         piece.add_moves(move)
-                        if self.squares[i][col].has_rival(piece.color):
-                            break
 
-            # move down
-            for i in range(row+1, ROWS):
-                if Square.is_valid(i, col):
-                    if self.squares[i][col].is_empty_or_rival(piece.color):
-                        initial = Square(row, col)
-                        final = Square(i, col)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[i][col].has_rival(piece.color):
-                            break
-
-            # move left
-            for j in range(col):
-                if Square.is_valid(row, j):
-                    if self.squares[row][j].is_empty_or_rival(piece.color):
-                        initial = Square(row, col)
-                        final = Square(row, j)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[row][j].has_rival(piece.color):
-                            break
-
-            # move right
-            for j in range(col+1, COLS):
-                if Square.is_valid(row, j):
-                    if self.squares[row][j].is_empty_or_rival(piece.color):
-                        initial = Square(row, col)
-                        final = Square(row, j)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[row][j].has_rival(piece.color):
-                            break
-
-        def bishop_moves():
-            # Move diagonally up left ( -1, -1 )
-            temp_row, temp_col = row, col
-            while temp_row >= 0 and temp_col >= 0:
-                temp_row -= 1
-                temp_col -= 1
-                if Square.is_valid(temp_row, temp_col):
-                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
-                        initial = Square(row, col)
-                        final = Square(temp_row, temp_col)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[temp_row][temp_col].has_rival(piece.color):
-                            break
-
-            # move diagonally up right ( -1, 1 )
-            temp_row, temp_col = row, col
-            while temp_row >= 0 and temp_col < COLS:
-                temp_row -= 1
-                temp_col += 1
-                if Square.is_valid(temp_row, temp_col):
-                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
-                        initial = Square(row, col)
-                        final = Square(temp_row, temp_col)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[temp_row][temp_col].has_rival(piece.color):
-                            break
-
-            # move diagonally down left (1, -1 )
-            temp_row, temp_col = row, col
-            while temp_row < ROWS and temp_col >= 0:
-                temp_row += 1
-                temp_col -= 1
-                if Square.is_valid(temp_row, temp_col):
-                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
-                        initial = Square(row, col)
-                        final = Square(temp_row, temp_col)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[temp_row][temp_col].has_rival(piece.color):
-                            break
-
-            # move diagonally down right ( 1, 1 )
-            temp_row, temp_col = row, col
-            while temp_row < ROWS and temp_col < COLS:
-                temp_row += 1
-                temp_col += 1
-                if Square.is_valid(temp_row, temp_col):
-                    if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
-                        initial = Square(row, col)
-                        final = Square(temp_row, temp_col)
-                        move = Move(initial, final)
-                        piece.add_moves(move)
-                        if self.squares[temp_row][temp_col].has_rival(piece.color):
-                            break
+        def all_in_one_moves(inc: List[tuple]):
+            for incr in inc:
+                row_incr, col_incr = incr
+                temp_row, temp_col = row, col
+                while 0 <= temp_row <= ROWS and 0 <= temp_col <= COLS:
+                    temp_row += row_incr
+                    temp_col += col_incr
+                    if Square.is_valid(temp_row, temp_col):
+                        if self.squares[temp_row][temp_col].is_empty_or_rival(piece.color) and not isinstance(self.squares[temp_row][temp_col].piece, King):
+                            initial = Square(row, col)
+                            final = Square(temp_row, temp_col)
+                            move = Move(initial, final)
+                            piece.add_moves(move)
+                            if self.squares[temp_row][temp_col].has_rival(piece.color):
+                                break
 
         def pawn_move():
             steps = 1 if piece.moved else 2
@@ -176,19 +111,44 @@ class Board:
             pawn_move()
 
         elif isinstance(piece, Rook):
-            rook_moves()
+            all_in_one_moves(
+                [
+                    (1, 0),
+                    (-1, 0),
+                    (0, 1),
+                    (0, -1),
+                ]
+            )
 
         elif isinstance(piece, Bishop):
-            bishop_moves()
+            all_in_one_moves(
+                [
+                    (-1, -1),
+                    (-1, 1),
+                    (1, -1),
+                    (1, 1),
+                ]
+            )
 
         elif isinstance(piece, Knight):
             knight_moves()
 
         elif isinstance(piece, Queen):
-            pass
+            all_in_one_moves(
+                [
+                    (-1, -1),
+                    (-1, 1),
+                    (1, -1),
+                    (1, 1),
+                    (1, 0),
+                    (-1, 0),
+                    (0, 1),
+                    (0, -1),
+                ]
+            )
 
         elif isinstance(piece, King):
-            pass
+            king_moves()
 
     def _create(self):
         for row in range(ROWS):
@@ -216,6 +176,7 @@ class Board:
 
         # Time to put King
         self.squares[row_other][4] = Square(row_other, 4, King(color))
+        self.squares[5][4] = Square(5, 4, King(color))
 
         # Time to put Queen
         self.squares[row_other][3] = Square(row_other, 3, Queen(color))
