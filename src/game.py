@@ -8,6 +8,7 @@ from dragger import Dragger
 class Game:
     def __init__(self) -> None:
         self.next_player = 'white'
+        self.hovered_sq = None
         self.board = Board()
         self.dragger = Dragger()
 
@@ -48,3 +49,23 @@ class Game:
 
     def next_move(self):
         self.next_player = 'white' if self.next_player == 'black' else 'black'
+
+    def show_last_move(self, surface):
+        if self.board.lastmove:
+            initial = self.board.lastmove.initial
+            final = self.board.lastmove.final
+
+            for pos in [initial, final]:
+                color = (244, 247, 116) if (pos.row + pos.col) % 2 == 0 else (172, 195, 51)
+                rect = (pos.col * SQSIZE, pos.row * SQSIZE, SQSIZE, SQSIZE)
+                pygame.draw.rect(surface, color, rect)
+
+    def show_hover(self, surface):
+        if self.hovered_sq:
+            pos = self.hovered_sq
+            color = (180, 180, 180)
+            rect = (pos.col * SQSIZE, pos.row * SQSIZE, SQSIZE, SQSIZE)
+            pygame.draw.rect(surface, color, rect, width=5)
+
+    def set_hover(self, row, col):
+        self.hovered_sq = self.board.squares[row][col]
