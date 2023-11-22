@@ -1,4 +1,7 @@
 class Square:
+
+    ALPHACOL = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i'}
+
     def __init__(self, row, col, piece=None) -> None:
         self.row = row
         self.col = col
@@ -28,4 +31,9 @@ class Square:
         if 0 <= r <= 7 and 0 <= c <= 7:
             return True
         return False
+
+    @staticmethod
+    def get_alpha_call(col):
+        ALPHACOL = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i'}
+        return ALPHACOL[col]
     
