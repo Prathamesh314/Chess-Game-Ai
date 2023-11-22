@@ -7,6 +7,7 @@ from dragger import Dragger
 
 class Game:
     def __init__(self) -> None:
+        self.next_player = 'white'
         self.board = Board()
         self.dragger = Dragger()
 
@@ -44,3 +45,6 @@ class Game:
                 color = '#C86464' if (move.final.row + move.final.col) % 2 == 0 else '#C84646'
                 rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(surface, color, rect)
+
+    def next_move(self):
+        self.next_player = 'white' if self.next_player == 'black' else 'black'

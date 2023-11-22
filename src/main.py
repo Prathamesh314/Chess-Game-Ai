@@ -3,6 +3,8 @@ import sys
 
 from const import *
 from game import Game
+from square import Square
+from move import Move
 
 
 class Main:
@@ -34,7 +36,7 @@ class Main:
                     clicked_row = dragger.mouse_y // SQSIZE
                     clicked_col = dragger.mouse_x // SQSIZE
 
-                    if board.squares[clicked_row][clicked_col].has_piece():
+                    if board.squares[clicked_row][clicked_col].piece.color == game.next_player and board.squares[clicked_row][clicked_col].has_piece():
                         piece = board.squares[clicked_row][clicked_col].piece
                         board.calc_moves(piece, clicked_row, clicked_col)
                         dragger.save_initials(event.pos)
@@ -56,6 +58,22 @@ class Main:
                 
                 # click release
                 elif event.type == pygame.MOUSEBUTTONUP:
+
+                    if dragger.dragging:
+                        dragger.update_mouse(event.pos)
+                        released_row = dragger.mouse_y // SQSIZE
+                        released_col = dragger.mouse_x // SQSIZE
+
+                        initial = Square(dragger.initial_row, dragger.initial_col)
+                        final = Square(released_row, released_col)
+                        move = Move(initial, final)
+                        # print(move, piece.moves)
+                        if board.valid_move(dragger.piece, move):
+                            board.move(dragger.piece, move)
+                            game.show_bg(screen)
+                            game.show_pieces(screen)
+                            game.next_move()
+
                     dragger.un_drag_piece()
 
                 # quit the application

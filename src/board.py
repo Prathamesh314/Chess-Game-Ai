@@ -10,8 +10,23 @@ class Board:
     def __init__(self) -> None:
         self.squares = [[0] * 8 for _ in range(COLS)]
         self._create()
+        self.lastmove = None
         self._add_pieces('white')
         self._add_pieces('black')
+
+    def move(self, piece, move):
+        initial = move.initial
+        final = move.final
+
+        self.squares[initial.row][initial.col].piece = None
+        self.squares[final.row][final.col].piece = piece
+
+        piece.moved = True
+        piece.clear_moves()
+        self.lastmove = move
+
+    def valid_move(self, piece, move):
+        return move in piece.moves
 
     def calc_moves(self, piece, row, col):
         '''
@@ -176,7 +191,6 @@ class Board:
 
         # Time to put King
         self.squares[row_other][4] = Square(row_other, 4, King(color))
-        self.squares[5][4] = Square(5, 4, King(color))
 
         # Time to put Queen
         self.squares[row_other][3] = Square(row_other, 3, Queen(color))
