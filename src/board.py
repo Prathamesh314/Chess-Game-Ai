@@ -21,6 +21,13 @@ class Board:
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
 
+        # king castling
+        if isinstance(piece, King):
+            if self.castling(initial, final):
+                diff = final.col - initial.col
+                rook = piece.left_rook if diff < 0 else piece.right_rook
+                self.move(rook, rook.moves[-1])
+
         if isinstance(piece, Pawn):
             self.check_promotion(piece, final)
 
@@ -30,6 +37,12 @@ class Board:
 
     def valid_move(self, piece, move):
         return move in piece.moves
+
+    def castling(self, initial, final):
+        return abs(initial.col - final.col) == 2
+
+    def show_castling(self):
+        pass
 
     def calc_moves(self, piece, row, col):
         '''
@@ -56,6 +69,43 @@ class Board:
                         final = Square(new_row, new_col)
                         move = Move(initial, final)
                         piece.add_moves(move)
+            if not piece.moved:
+                # Queen side castling
+                left_rook = self.squares[row][0].piece
+                if isinstance(left_rook, Rook):
+                    if not left_rook.moved:
+                        if self.squares[row][1].is_empty() and self.squares[row][2].is_empty() and self.squares[row][3].is_empty():
+                            # rook move
+                            piece.left_rook = left_rook
+                            initial = Square(row, 0)
+                            final = Square(row, 3)
+                            move = Move(initial, final)
+                            left_rook.add_moves(move)
+
+                            # king move
+                            initial = Square(row, col)
+                            final = Square(row, 2)
+                            move = Move(initial, final)
+                            piece.add_moves(move)
+
+                # King side castling
+                right_rook = self.squares[row][7].piece
+                if isinstance(right_rook, Rook):
+                    if not right_rook.moved:
+                        if self.squares[row][6].is_empty() and self.squares[row][5].is_empty():
+
+                            # rook
+                            piece.right_rook = right_rook
+                            initial = Square(row, 7)
+                            final = Square(row, 5)
+                            move = Move(initial, final)
+                            right_rook.add_moves(move)
+
+                            # king move
+                            initial = Square(row, col)
+                            final = Square(row, 6)
+                            move = Move(initial, final)
+                            piece.add_moves(move)
 
         def all_in_one_moves(inc: List[tuple]):
             for incr in inc:
