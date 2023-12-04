@@ -4,6 +4,7 @@ from const import *
 from square import Square
 from piece import *
 from move import Move
+import copy
 
 
 class Board:
@@ -41,8 +42,192 @@ class Board:
     def castling(self, initial, final):
         return abs(initial.col - final.col) == 2
 
-    def show_castling(self):
-        pass
+    def check_check(self, piece, row, col) -> bool:
+        temp_row, temp_col = row, col
+        # check horizontally left
+        temp_col -= 1
+        while temp_col >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Bishop, Knight, Pawn))):
+                return True
+            temp_col -= 1
+
+        temp_row, temp_col = row, col
+        # check horizontally right
+        temp_col += 1
+        while temp_col < COLS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Bishop, Knight, Pawn))):
+                return True
+            temp_col += 1
+
+        temp_row, temp_col = row, col
+        # check vertically up
+        temp_row -= 1
+        while temp_row >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Bishop, Knight, Pawn))):
+                return True
+            temp_row -= 1
+
+        temp_row, temp_col = row, col
+        temp_row += 1
+        # check vertically down
+        while temp_row < ROWS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Bishop, Knight, Pawn))):
+                return True
+            temp_row += 1
+
+        temp_row, temp_col = row, col
+        temp_row -= 1
+        temp_col -= 1
+        # checking diagonally up left
+        while temp_row >= 0 and temp_col >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Rook, Knight, Pawn))):
+                return True
+            temp_row -= 1
+            temp_col -= 1
+
+        temp_row, temp_col = row, col
+        temp_row -= 1
+        temp_col += 1
+        # checking diagonally up right
+        while temp_row >= 0 and temp_col < COLS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Rook, Knight, Pawn))):
+                return True
+            temp_row -= 1
+            temp_col += 1
+
+        temp_row, temp_col = row, col
+        temp_row += 1
+        temp_col -= 1
+        # checking diagonally down left
+        while temp_row < ROWS and temp_col >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Rook, Knight, Pawn))):
+                return True
+            temp_row += 1
+            temp_col -= 1
+
+        temp_row, temp_col = row, col
+        temp_row += 1
+        temp_col += 1
+        # diagonally down right
+        while temp_row < ROWS and temp_col < COLS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color):
+                break
+            elif self.squares[temp_row][temp_col].has_rival(piece.color) and not (isinstance(self.squares[temp_row][temp_col].piece, (Rook, Knight, Pawn))):
+                return True
+            temp_row += 1
+            temp_col += 1
+
+        return False
+
+
+    def is_check(self, piece, move):
+        initial_row, initial_col = move.initial.row, move.initial.col
+        king_row, king_col = None, None
+
+        # I just need to find f king
+        # Checking horizontally
+        temp_row, temp_col = initial_row, initial_col
+        for i in range(COLS):
+            if i != initial_col and self.squares[temp_row][i].has_team_piece(piece.color) and isinstance(self.squares[temp_row][i].piece, King):
+                king_row, king_col = temp_row, i
+                break
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        # Checking vertically
+        temp_row, temp_col = initial_row, initial_col
+        for j in range(ROWS):
+            if j != initial_row and self.squares[j][temp_col].has_team_piece(piece.color) and isinstance(self.squares[j][temp_col].piece, King):
+                king_row, king_col = j, temp_col
+                break
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        # check diagonally left up
+        temp_row, temp_col = initial_row, initial_col
+        temp_row -= 1
+        temp_row -= 1
+        while temp_row >= 0 and temp_col >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color) and isinstance(self.squares[temp_row][temp_col].piece, King):
+                king_row, king_col = temp_row, temp_col
+                break
+            temp_row -= 1
+            temp_row -= 1
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        # check diagonally right up
+        temp_row, temp_col = initial_row, initial_col
+        temp_row -= 1
+        temp_col += 1
+        while temp_row >= 0 and temp_col < COLS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color) and isinstance(self.squares[temp_row][temp_col].piece, King):
+                king_row, king_col = temp_row, temp_col
+                break
+            temp_row -= 1
+            temp_col += 1
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        # check diagonally right down
+        temp_row, temp_col = initial_row, initial_col
+        temp_row += 1
+        temp_col += 1
+        while temp_row < ROWS and temp_col < COLS:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color) and isinstance(self.squares[temp_row][temp_col].piece, King):
+                king_row, king_col = temp_row, temp_col
+                break
+            temp_row += 1
+            temp_col += 1
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        # check diagonally left down
+        temp_row, temp_col = initial_row, initial_col
+        temp_row += 1
+        temp_col -= 1
+        while temp_row < ROWS and temp_col >= 0:
+            if self.squares[temp_row][temp_col].has_team_piece(piece.color) and isinstance(self.squares[temp_row][temp_col].piece, King):
+                king_row, king_col = temp_row, temp_col
+                break
+            temp_row += 1
+            temp_col -= 1
+
+        if king_row is not None and king_col is not None:
+            if self.check_check(piece, king_row, king_col):
+                return True
+            return False
+
+        return False
 
     def calc_moves(self, piece, row, col):
         '''
@@ -146,7 +331,8 @@ class Board:
                 if Square.is_valid(possible_moved_rows, possible_moved_col):
                     if self.squares[possible_moved_rows][possible_moved_col].has_rival(piece.color):
                         initial = Square(row, col)
-                        final = Square(possible_moved_rows, possible_moved_col)
+                        final_piece = self.squares[possible_moved_row][possible_moved_col].piece
+                        final = Square(possible_moved_rows, possible_moved_col, final_piece)
                         move = Move(initial, final)
                         piece.add_moves(move)
 
@@ -168,7 +354,8 @@ class Board:
                     if self.squares[possible_move_row][possible_move_col].is_empty_or_rival(piece.color):
                         # create squares of moves
                         initial = Square(row, col, piece)
-                        final = Square(possible_move_row, possible_move_col)
+                        final_piece = self.squares[possible_move_row][possible_move_col].piece
+                        final = Square(possible_move_row, possible_move_col, final_piece)
 
                         # create a new move
                         move = Move(initial, final)
